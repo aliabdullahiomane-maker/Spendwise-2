@@ -1,31 +1,23 @@
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
 
-
 if (!process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
-  throw new Error(
-    "Missing FIREBASE_SERVICE_ACCOUNT_JSON secret."
-  );
+  throw new Error("Missing FIREBASE_SERVICE_ACCOUNT_JSON secret.");
 }
 
-const serviceAccount =
-  JSON.parse(
-    process.env.FIREBASE_SERVICE_ACCOUNT_JSON
-  );
+const serviceAccount = JSON.parse(
+  process.env.FIREBASE_SERVICE_ACCOUNT_JSON
+);
 
+serviceAccount.private_key =
+  serviceAccount.private_key.replace(/\\n/g, "\n");
 
 admin.initializeApp({
-  credential:
-    admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount)
 });
 
-
-const db =
-  admin.firestore();
-
-const auth =
-  admin.auth();
-
+const db = admin.firestore();
+const auth = admin.auth();
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat("en-KE", {
@@ -37,7 +29,6 @@ function formatCurrency(amount) {
   }).format(Number(amount) || 0);
 }
 
-
 function escapeHTML(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -46,7 +37,6 @@ function escapeHTML(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
-
 
 function getPreviousMonthRange() {
   const now = new Date();
@@ -85,7 +75,6 @@ function getPreviousMonthRange() {
   };
 }
 
-
 function getMonthLabel(date) {
   return date.toLocaleDateString("en-KE", {
     month: "long",
@@ -93,7 +82,6 @@ function getMonthLabel(date) {
     timeZone: "Africa/Nairobi"
   });
 }
-
 
 function getTimestampDate(timestamp) {
   if (!timestamp) {
@@ -111,33 +99,22 @@ function getTimestampDate(timestamp) {
   return null;
 }
 
-
-function isDateInRange(
-  timestamp,
-  startDate,
-  endDate
-) {
-  const date =
-    getTimestampDate(timestamp);
+function isDateInRange(timestamp, startDate, endDate) {
+  const date = getTimestampDate(timestamp);
 
   if (!date) {
     return false;
   }
 
-  return (
-    date >= startDate &&
-    date <= endDate
-  );
+  return date >= startDate && date <= endDate;
 }
 
-
 function createTransporter() {
-  const port =
-    Number(process.env.SMTP_PORT || 587);
+  const port = Number(process.env.SMTP_PORT || 587);
 
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: port,
+    port,
     secure: port === 465,
     auth: {
       user: process.env.SMTP_USER,
@@ -146,36 +123,33 @@ function createTransporter() {
   });
 }
 
-
 function createExpenseRows(expenses) {
-  return expenses.map((expense) => {
-    const name =
-      escapeHTML(expense.name || "Expense");
+  return expenses
+    .map((expense) => {
+      const name = escapeHTML(expense.name || "Expense");
+      const amount = formatCurrency(expense.amount);
 
-    const amount =
-      formatCurrency(expense.amount);
+      return `
+        <tr>
+          <td style="
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+          ">
+            ${name}
+          </td>
 
-    return `
-      <tr>
-        <td style="
-          padding: 10px;
-          border-bottom: 1px solid #e2e8f0;
-        ">
-          ${name}
-        </td>
-
-        <td style="
-          padding: 10px;
-          border-bottom: 1px solid #e2e8f0;
-          text-align: right;
-        ">
-          ${amount}
-        </td>
-      </tr>
-    `;
-  }).join("");
+          <td style="
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: right;
+          ">
+            ${amount}
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
 }
-
 
 async function sendEmail({
   email,
@@ -186,11 +160,9 @@ async function sendEmail({
   balance,
   expenses
 }) {
-  const transporter =
-    createTransporter();
+  const transporter = createTransporter();
 
-  const expenseRows =
-    createExpenseRows(expenses);
+  const expenseRows = createExpenseRows(expenses);
 
   const expenseTable =
     expenseRows ||
@@ -205,11 +177,8 @@ async function sendEmail({
   const balanceColor =
     balance >= 0 ? "#15803d" : "#b91c1c";
 
-  const safeName =
-    escapeHTML(displayName || "there");
-
-  const safeMonth =
-    escapeHTML(monthLabel);
+  const safeName = escapeHTML(displayName || "there");
+  const safeMonth = escapeHTML(monthLabel);
 
   const html = `
     <!DOCTYPE html>
@@ -342,16 +311,13 @@ async function sendEmail({
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject:
-      `SpendWise summary for ${monthLabel}`,
-    html: html
+    subject: `SpendWise summary for ${monthLabel}`,
+    html
   });
 }
 
-
 async function getEmailForUser(userDocument) {
-  const userData =
-    userDocument.data();
+  const userData = userDocument.data();
 
   if (userData.email) {
     return {
@@ -362,8 +328,7 @@ async function getEmailForUser(userDocument) {
   }
 
   try {
-    const authUser =
-      await auth.getUser(userDocument.id);
+    const authUser = await auth.getUser(userDocument.id);
 
     return {
       email: authUser.email || null,
@@ -382,7 +347,6 @@ async function getEmailForUser(userDocument) {
     };
   }
 }
-
 
 async function sendMonthlyReminders() {
   const {
@@ -408,8 +372,7 @@ async function sendMonthlyReminders() {
       continue;
     }
 
-    const uid =
-      userDocument.id;
+    const uid = userDocument.id;
 
     const settingsDocument =
       await db
@@ -437,8 +400,7 @@ async function sendMonthlyReminders() {
     const expenses = [];
 
     for (const expenseDocument of expensesSnapshot.docs) {
-      const expense =
-        expenseDocument.data();
+      const expense = expenseDocument.data();
 
       const inPreviousMonth =
         isDateInRange(
@@ -457,16 +419,14 @@ async function sendMonthlyReminders() {
         return total + Number(expense.amount || 0);
       }, 0);
 
-    const balance =
-      income - totalExpenses;
+    const balance = income - totalExpenses;
 
     const monthKey =
       startOfPreviousMonth
         .toISOString()
         .slice(0, 7);
 
-    const reminderId =
-      `${uid}_${monthKey}`;
+    const reminderId = `${uid}_${monthKey}`;
 
     const reminderDocument =
       db
@@ -484,15 +444,15 @@ async function sendMonthlyReminders() {
     await sendEmail({
       email: userInfo.email,
       displayName: userInfo.displayName,
-      monthLabel: monthLabel,
-      income: income,
-      totalExpenses: totalExpenses,
-      balance: balance,
-      expenses: expenses
+      monthLabel,
+      income,
+      totalExpenses,
+      balance,
+      expenses
     });
 
     await reminderDocument.set({
-      uid: uid,
+      uid,
       email: userInfo.email,
       month: monthKey,
       sentAt:
@@ -510,7 +470,6 @@ async function sendMonthlyReminders() {
     `Monthly reminders skipped: ${skippedCount}`
   );
 }
-
 
 sendMonthlyReminders()
   .then(() => {
