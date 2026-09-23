@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="description"
+    content="SpendWise Kenyan personal finance dashboard"
+  >
+  <title>SpendWise | Personal Finance</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">S</div>
+
+      <p class="eyebrow">Personal finance</p>
+
+      <h1>Make every shilling count.</h1>
+
+      <p class="login-text">
+        Track your income, manage expenses, and understand your financial habits.
+      </p>
+
+      <button
+        id="google-login-button"
+        class="google-button"
+        type="button"
+      >
+        <span class="google-icon">G</span>
+        Continue with Gmail
+      </button>
+
+      <div class="phone-login">
+        <div class="login-divider">
+          <span>OR</span>
+        </div>
+
+        <h3>Sign in with phone</h3>
+
+        <label
+          for="phone-number"
+          class="sr-only"
+        >
+          Phone number
+        </label>
+
+        <input
+          id="phone-number"
+          type="tel"
+          placeholder="+254 712 345678"
+          autocomplete="tel"
+        >
+
+        <div id="recaptcha-container"></div>
+
+        <button
+          id="send-code-button"
+          class="secondary-button"
+          type="button"
+        >
+          Send verification code
+        </button>
+
+        <label
+          for="verification-code"
+          class="sr-only"
+        >
+          Verification code
+        </label>
+
+        <input
+          id="verification-code"
+          type="text"
+          inputmode="numeric"
+          maxlength="6"
+          placeholder="Enter 6-digit code"
+          autocomplete="one-time-code"
+        >
+
+        <button
+          id="verify-code-button"
+          class="primary-button"
+          type="button"
+        >
+          Verify phone number
+        </button>
+
+        <p
+          id="phone-message"
+          class="auth-message"
+          role="status"
+        ></p>
+      </div>
+
+      <p
+        id="auth-message"
+        class="auth-message"
+        role="alert"
+      ></p>
+
+      <small>
+        Your account data is private and securely stored.
+      </small>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <a href="#dashboard" class="brand">
+        <span class="brand-mark">S</span>
+        <span>SpendWise</span>
+      </a>
+
+      <nav class="nav-menu" aria-label="Main navigation">
+        <a href="#dashboard" class="nav-item active">
+          Dashboard
+        </a>
+
+        <a href="#expenses" class="nav-item">
+          Expenses
+        </a>
+
+        <a href="#budget" class="nav-item">
+          Budget
+        </a>
+
+        <a href="#settings" class="nav-item">
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-tip">
+        <span>💡</span>
+        <p>
+          Small savings today create a stronger tomorrow.
+        </p>
+      </div>
+
+      <button
+        id="logout-button"
+        class="logout-button"
+        type="button"
+      >
+        <span>↪</span>
+        Log out
+      </button>
+    </aside>
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Personal finance</p>
+        <h1 id="page-title">Dashboard</h1>
+      </div>
+
+      <div class="user-area">
+        <div class="user-details">
+          <strong id="user-name">User</strong>
+          <small id="user-email">user@gmail.com</small>
+        </div>
+
+        <img
+          id="user-photo"
+          class="user-photo"
+          src=""
+          alt="User profile"
+        >
+
+        <button
+          id="settings-button"
+          class="icon-button"
+          type="button"
+          title="Open settings"
+        >
+          ⚙
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section id="dashboard" class="hero-section">
+        <div>
+          <p class="eyebrow">Financial snapshot</p>
+
+          <h2>Good money habits start here.</h2>
+
+          <p>
+            Keep track of your income and expenses in Kenyan Shillings.
+          </p>
+        </div>
+
+        <div class="hero-decoration">
+          <span>💰</span>
+          <span>📊</span>
+          <span>🎯</span>
+        </div>
+      </section>
+
+      <section class="summary-grid">
+        <article class="summary-card income-card">
+          <div class="summary-icon">↗</div>
+
+          <div>
+            <p>Monthly income</p>
+            <h2 id="total-income-display">KES 0.00</h2>
+          </div>
+        </article>
+
+        <article class="summary-card expense-card">
+          <div class="summary-icon">↘</div>
+
+          <div>
+            <p>Total expenses</p>
+            <h2 id="total-expenses-display">KES 0.00</h2>
+          </div>
+        </article>
+
+        <article class="summary-card balance-card">
+          <div class="summary-icon">◆</div>
+
+          <div>
+            <p>Remaining balance</p>
+            <h2 id="remaining-balance-display">KES 0.00</h2>
+          </div>
+        </article>
+      </section>
+
+      <section id="budget" class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Budget planning</p>
+            <h2>Update your finances</h2>
+          </div>
+
+          <span class="badge">KES</span>
+        </div>
+
+        <div class="forms-grid">
+          <div class="form-group">
+            <h3>Monthly income</h3>
+
+            <p class="helper-text">
+              Enter your income for this month.
+            </p>
+
+            <form id="income-form" class="form-row">
+              <label
+                for="income-input"
+                class="sr-only"
+              >
+                Monthly income in KES
+              </label>
+
+              <input
+                id="income-input"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="e.g. 50000"
+                required
+              >
+
+              <button
+                class="primary-button"
+                type="submit"
+              >
+                Update income
+              </button>
+            </form>
+          </div>
+
+          <div class="form-group">
+            <h3>Add expense</h3>
+
+            <p class="helper-text">
+              Expenses remain for 30 days.
+            </p>
+
+            <form id="expense-form" class="form-row">
+              <label
+                for="expense-name"
+                class="sr-only"
+              >
+                Expense name
+              </label>
+
+              <input
+                id="expense-name"
+                type="text"
+                maxlength="60"
+                placeholder="e.g. Groceries"
+                required
+              >
+
+              <label
+                for="expense-amount"
+                class="sr-only"
+              >
+                Expense amount in KES
+              </label>
+
+              <input
+                id="expense-amount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                placeholder="Amount in KES"
+                required
+              >
+
+              <button
+                class="primary-button"
+                type="submit"
+              >
+                Add expense
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div
+          id="budget-status"
+          class="status-banner info"
+          role="status"
+        >
+          Set your income and add expenses to view your budget health.
+        </div>
+      </section>
+
+      <section
+        id="expenses"
+        class="records-section"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Recent activity</p>
+            <h2>Expense records</h2>
+          </div>
+
+          <span
+            id="expense-count"
+            class="badge"
+          >
+            0 records
+          </span>
+        </div>
+
+        <div
+          id="expenses-list"
+          class="expenses-list"
+        >
+          <div class="empty-state">
+            <div class="empty-icon">＋</div>
+
+            <h3>No expenses yet</h3>
+
+            <p>
+              Add your first expense above to start tracking your spending.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="settings"
+        class="panel settings-panel"
+      >
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Preferences</p>
+            <h2>Settings</h2>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <h3>Appearance</h3>
+
+            <p class="helper-text">
+              Choose light mode or dark mode.
+            </p>
+          </div>
+
+          <select
+            id="theme-select"
+            class="theme-select"
+          >
+            <option value="light">Light mode</option>
+            <option value="dark">Dark mode</option>
+          </select>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <h3>Email reminders</h3>
+
+            <p class="helper-text">
+              Open Gmail with a reminder when an expense is approaching expiry.
+            </p>
+          </div>
+
+          <button
+            id="email-reminder-button"
+            class="secondary-button"
+            type="button"
+          >
+            Prepare reminder
+          </button>
+        </div>
+      </section>
+
+      <footer class="site-footer">
+        <p>
+          © <span id="copyright-year"></span>
+          Ali Omane. All rights reserved.
+        </p>
+
+        <p>
+          Built for smarter money management in Kenya.
+        </p>
+      </footer>
+    </main>
+  </div>
+
+  <script
+    type="module"
+    src="script.js"
+  ></script>
+</body>
+</html>
