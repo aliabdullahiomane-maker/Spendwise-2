@@ -857,6 +857,7 @@ async function loadUserSettings() {
   }
 
   updateDashboard();
+  drawSpendingChart();
 }
 
 
@@ -1104,3 +1105,34 @@ onAuthStateChanged(auth, async (user) => {
     );
   }
 });
+let spendingChart;
+
+function drawSpendingChart() {
+  const canvas = document.getElementById("spending-chart");
+
+  if (!canvas || !window.Chart) {
+    return;
+  }
+
+  const total = expenses.reduce((sum, expense) => {
+    return sum + Number(expense.amount || 0);
+  }, 0);
+
+  if (spendingChart) {
+    spendingChart.destroy();
+  }
+
+  spendingChart = new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: ["Your current spending"],
+      datasets: [
+        {
+          label: "KES",
+          data: [total],
+          backgroundColor: "#2563eb"
+        }
+      ]
+    }
+  });
+}
