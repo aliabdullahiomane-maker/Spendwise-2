@@ -9,6 +9,16 @@ const serviceAccount = JSON.parse(
   process.env.FIREBASE_SERVICE_ACCOUNT_JSON
 );
 
+if (
+  !serviceAccount.private_key ||
+  !serviceAccount.client_email ||
+  !serviceAccount.project_id
+) {
+  throw new Error(
+    "Invalid Firebase service-account JSON."
+  );
+}
+
 serviceAccount.private_key =
   serviceAccount.private_key.replace(/\\n/g, "\n");
 
@@ -111,6 +121,22 @@ function isDateInRange(timestamp, startDate, endDate) {
 
 function createTransporter() {
   const port = Number(process.env.SMTP_PORT || 587);
+
+  if (!process.env.SMTP_HOST) {
+    throw new Error("Missing SMTP_HOST secret.");
+  }
+
+  if (!process.env.SMTP_USER) {
+    throw new Error("Missing SMTP_USER secret.");
+  }
+
+  if (!process.env.SMTP_PASSWORD) {
+    throw new Error("Missing SMTP_PASSWORD secret.");
+  }
+
+  if (!process.env.EMAIL_FROM) {
+    throw new Error("Missing EMAIL_FROM secret.");
+  }
 
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
