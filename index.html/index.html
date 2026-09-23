@@ -422,7 +422,19 @@
       </footer>
     </main>
   </div>
+  <section class="chart-section">
+  <h2>My Spending</h2>
 
+  <select id="spending-period">
+    <option value="daily">Daily</option>
+    <option value="weekly">Weekly</option>
+    <option value="monthly" selected>Monthly</option>
+    <option value="yearly">Yearly</option>
+  </select>
+
+  <canvas id="spending-chart"></canvas>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script
     type="module"
     src="script.js"
